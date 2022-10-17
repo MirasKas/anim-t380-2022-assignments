@@ -5,14 +5,14 @@ import maya.standalone
 
 maya.standalone.initialize()
 
-O_Name = 'goldfish.model.mdk'
+OriginalName = 'goldfish.model.mdk'
 
-if mc.file(ex=(fileName)):
-    mc.file(o=(fileName))
+if mc.file(ex=(OriginalName)):
+    mc.file(o=(OriginalName))
 
 else:
     mc.file (new=True)
-    mc.file(rn=(os.path.join(O_Name + '.1')))
+    mc.file(rn=(os.path.join(OriginalName + '.1')))
 
 
 
