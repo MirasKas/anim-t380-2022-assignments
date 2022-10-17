@@ -2,21 +2,15 @@
 
 
 ## Description
-This script creates a cube to the proportions of a human height as a size reference when modeling characters. 
+This script saves a file iteration with an added +.1 to te version, or creates a new file with the name if the iterating file isn't open.
 
 ## Usage/Arguments
 ```
-mayapy main.py[-h]cube_h
+mayapy main.py
 ```
-This script creates cube with desired height and subdives the height into a ratio every 20 units
-
-Arguments:
-* cube_h (deteclares the height of the cube)
-* -h(help message)
 
 ## Example
 
 ```
-mayapy main.py 180
+mayapy main.py 
 ```
-This script will create a cube with Height 180 and 9 subdivisions for height. 
