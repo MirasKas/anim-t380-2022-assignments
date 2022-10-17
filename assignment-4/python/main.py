@@ -7,7 +7,7 @@ maya.standalone.initialize()
 
 O_Name = 'goldfish.model.mdk'
 
-if (cmds.file(ex=(fileName)):
+if cmds.file(ex=(fileName)):
     cmds.file(o=(fileName))
 
 else:
@@ -16,9 +16,9 @@ else:
 
 
 
-splitName = cmds.file(sn=True).split('.')
-splitName[3] = str(int(splitName[3])+1)
+newName = cmds.file(sn=True).split('.')
+newName[3] = str(int(splitName[3])+1)
 
-cmds.file(rn=((os.path.join(os.getcwd(),splitName.join('.')))))
+cmds.file(rn=((os.path.join(os.getcwd(),newName.join('.')))))
 
 cmds.file(save=True, typ=('mayaAscii'))
