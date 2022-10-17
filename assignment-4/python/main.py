@@ -17,7 +17,7 @@ else:
 
 
 newName = cmds.file(sn=True).split('.')
-newName[3] = str(int(splitName[3])+1)
+newName[3] = str(int(newName[3])+1)
 
 cmds.file(rn=((os.path.join(os.getcwd(),newName.join('.')))))
 
