@@ -6,16 +6,16 @@ import maya.standalone
 maya.standalone.initialize()
 
 try:
-    ASSET = os.getenv('asset')
+    pullAsset = os.getenv('asset')
 except:
     print('$asset not found')
     
-if ASSET == None:
+if pullAsset == None:
     print('$asset not set')
 
 
 cwd = os.path.dirname(os.getcwd())
-assetDir = 'assets\\{assetName}\\maya\scenes\\assignment-3.mb'.format(assetName=ASSET)
+assetDir = 'assets\\{assetName}\\maya\scenes\\assignment-3.mb'.format(assetName=pullAsset)
 parentDir = os.path.join(cwd,assetDir)
 
 os.makedirs(parentDir)
