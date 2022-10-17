@@ -13,6 +13,5 @@ For the correct path, run the shell script first then the python script from the
 ## Example
 
 ```
-mayapy main.py 180
+mayapy main.py
 ```
-This script will create a cube with Height 180 and 9 subdivisions for height. 
