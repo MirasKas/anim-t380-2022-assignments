@@ -2,153 +2,165 @@ import sys
 import csv
 from pathlib import Path
 
-# import maya.standalone as standalone
-# from maya import cmds
-# from maya import mel
-# from maya import OpenMayaUI as omui 
-# from shiboken2 import wrapInstance
+from maya import cmds
+from maya import mel
+from maya import OpenMayaUI as omui 
+from shiboken2 import wrapInstance
 
 from PySide2 import QtGui, QtCore
 from PySide2.QtCore import Qt
 from PySide2 import QtUiTools
 from PySide2.QtWidgets import (
-    QMainWindow, QApplication,
-    QLabel, QCheckBox, QComboBox, QListWidget, QLineEdit,
-    QLineEdit,QVBoxLayout,QGridLayout,QWidget,QPushButton,QInputDialog,QFileDialog
+	QMainWindow, QApplication,
+	QLabel, QCheckBox, QComboBox, QListWidget, QLineEdit,
+	QLineEdit,QVBoxLayout,QGridLayout,QWidget,QPushButton,QInputDialog,QFileDialog
 )
  
+def maya_main_window():	
+	mayaMainWindowPtr = omui.MQtUtil.mainWindow()
 
-cameraList = Path(__file__).with_name('cameraList.csv')
+	if sys.version_info.major >= 3:
+		return wrapInstance(int(mayaMainWindowPtr),QWidget )
 
-cameraType = []
-resolutionCam =[]
-focalLength = []
-filmBack = []
+	else:  
+		return wrapInstance(long(mayaMainWindowPtr), QWidget)
 
-with cameraList.open('r') as f:
-	file = csv.reader(f)
-	heading = next(file)
+class CreateCameraUI(QWidget):
+	
+	def __init__(self, *args,**kwargs):
+		self.cameraType = []
+		self.resolutionCam =[]
+		self.focalLength = []
+		self.filmBack = []
+		self.selectedCamera=[]
 
-	for row in file:	
-		cameraType.append(row[0])
-		resolutionCam.append(row[1])
-		focalLength.append(row[2])
-		filmBack.append(row[3])
+		
+		super(CreateCameraUI, self).__init__(*args,**kwargs)
+		self.setParent(maya_main_window())
+		self.setWindowFlags(Qt.Window)
 
-# def maya_main_window():	
-#     mayaMainWindowPtr = omui.MQtUtil.mainWindow()
+		self.setWindowTitle("Maya Camera Tool")
+		self.setMinimumWidth(600)
+		
+		self.filename=""
+		self.file=""
 
-#     if sys.version_info.major >= 3:
-#         return wrapInstance(int(mayaMainWindowPtr),QWidget )
+		layout = QGridLayout()
+		boxLayout = QVBoxLayout() 
+		self.setLayout(layout)
 
-#     else:  
-#         return wrapInstance(long(mayaMainWindowPtr), QWidget)
+		# widget = QWidget()
+		# widget.setLayout(layout)
 
-class CreateCameraUI(QMainWindow):
-    
-    def __init__(self):
-        super(CreateCameraUI, self).__init__()
+		header = QLabel("Camera Settings")
+		font = header.font()
+		font.setPointSize(20)
+		header.setFont(font)
+		header.setAlignment(Qt.AlignLeft | Qt.AlignTop)
 
-        self.setWindowTitle("Maya Camera Tool")
-        self.setMinimumWidth(600)
-        self.cameraType=""
+		layout.addWidget(header, 0, 0)
 
-        layout = QGridLayout()
-        boxLayout = QVBoxLayout() 
-        self.setLayout(layout)
+		self.selectBtn = QPushButton("Select",self)
+		layout.addWidget(self.selectBtn, 1,0)
+		self.selectBtn.pressed.connect(self.open_dialog_box)
 
-        widget = QWidget()
-        widget.setLayout(layout)
+		self.cameraSelect = QComboBox(self)
+		layout.addWidget(self.cameraSelect, 2, 0)
+		
 
-
-
-        header = QLabel("Camera Settings")
-        font = header.font()
-        font.setPointSize(20)
-        header.setFont(font)
-        header.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-
-        layout.addWidget(header, 0, 0)
-
-        self.selectBtn = QPushButton("Select",self)
-        layout.addWidget(self.selectBtn, 1,0)
-        self.selectBtn.pressed.connect(self.open_dialog_box)
-
-
-        self.cameraSelect = QComboBox(self)
-        layout.addWidget(self.cameraSelect, 2, 0)
-        self.cameraSelect.addItems(cameraType)
-
-
-
-        # resolution = QComboBox()
-        # layout.addWidget(resolutionCam, 1, 1)
-        # resolution.addItems(resolution)
-
-        # fLength = QComboBox()
-        # layout.addWidget(fLength, 1, 2)
-        # fLength.addItems(focalLength)
-        
-        # fBack = QComboBox()
-        # layout.addWidget(fBack, 1, 3)
-        # fBack.addItems(filmBack)
-
-
-#Creates button
-        self.createBtn = QPushButton("Create", self)
-        layout.addWidget(self.createBtn, 2, 3)
-        self.createBtn.pressed.connect(self.populateCameraSettings)
-
-
-        # cameraSelect.currentIndexChanged.connect(self.index_changed)
-        # cameraSelect.currentTextChanged.connect(self.text_changed)
-
-        
-        self.setCentralWidget(widget)
+		#Creates button
+		self.createBtn = QPushButton("Create", self)
+		layout.addWidget(self.createBtn, 2, 3)
+		self.createBtn.pressed.connect(self.populateCameraSettings)
+	
+		# self.setCentralWidget(widget)
   
    # def index_changed(self, i):
 
-    def selectCameraFile(self):
-        print("Select File")
+	def selectCameraFile(self):
+		print("Select File")
 
-    def open_dialog_box(self):
-        filename = QtGui.QFileDialog.getOpenFileName(parent=self, caption='Open file', dir='.', filter='(*.csv)')
+	def open_dialog_box(self):
+		# print(self.filename)
+		# print('Here 1')
+		self.filename = QFileDialog.getOpenFileName(parent=self, caption='Open file', dir='.', filter='(*.csv)')
+		# print(self.filename)
+		# print('Here 2')
+		self.filename = Path(self.filename[0])
+		# print(self.filename)
+
+		with self.filename.open('r') as f:
+			self.file = csv.reader(f)
+			self.heading = next(self.file)
+
+			for row in self.file:	
+				# print('Here 3')
+				# print(row)
+				self.cameraType.append(row[0])
+				self.resolutionCam.append(row[1])
+				self.focalLength.append(row[2])
+				self.filmBack.append(row[3])
+				# print(self.cameraType, self.resolutionCam, self.focalLength, self.filmBack)
+
+		self.cameraSelect.addItems(self.cameraType)
+
+			
+
+	def setCameraType(self,cameraType):
+		self.cameraType = cameraType
+
+	def populateCameraSettings(self):
+	
+		
+		content = self.cameraSelect.currentText()
+		index = self.cameraType.index(content)
+		
+		#selectedCamera.append(content)
+		self.selectedCamera.append(self.resolutionCam[index])
+		self.selectedCamera.append(float(self.focalLength[index]))
+		self.selectedCamera.append(self.filmBack[index])
+		# print(self.selectedCamera)
+		# cameraValues = selectedCamera[index]
+
+		apeture = self.selectedCamera[2]
+		apeture = apeture.split(' x ')
+		# print(apeture)
+		self.selectedCamera.pop()
+		self.selectedCamera.append(float(apeture[0]))
+		self.selectedCamera.append(float(apeture[1]))
+		# print(self.selectedCamera)
+
+	# def makeCamera(self):
+		newCam = cmds.camera( displayResolution = True, hfa = self.selectedCamera[2],
+		vfa = self.selectedCamera[3], fl= self.selectedCamera[1], name = content)
+		
+		
+		self.selectedCamera = []
 
 
-    def setCameraType(self,cameraType):
-        self.cameraType = cameraType
-    
+if __name__ == "__main__":
+	
 
-    def populateCameraSettings(self):
-        content = self.cameraSelect.currentText()
-        index = cameraType.index(content)
-        selectedCamera=[]
-        #selectedCamera.append(content)
-        selectedCamera.append(resolutionCam[index])
-        selectedCamera.append(focalLength[index])
-        selectedCamera.append(filmBack[index])
-        print(selectedCamera)
+	cameraUI = CreateCameraUI()
+	cameraUI.show()
+	
 
-    def makeCamera():
-        newCam = cmds.camera()
-        cmds.rename(newCam[0],"Shot Cam")
+	
 
-
-
+	
 
 
 # Maya Stuff
 
-
 # Create a window
-tool = QApplication(sys.argv)
-window = CreateCameraUI()
+# tool = QApplication(sys.argv)
+# window = CreateCameraUI()
 
-window.show()
-tool.exec_()
+# window.show()
+# tool.exec_()
 # Starts loop
 
    
-    
+	
 
 
